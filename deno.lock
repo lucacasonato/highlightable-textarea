@@ -1,0 +1,23 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@nic/local-highlight-registry@0.1": "0.1.0",
+    "npm:preact@^10.29.1": "10.29.1"
+  },
+  "jsr": {
+    "@nic/local-highlight-registry@0.1.0": {
+      "integrity": "826ae01c443fd6d886d0c036048628685247b88de9a675c799fd86549fed822b"
+    }
+  },
+  "npm": {
+    "preact@10.29.1": {
+      "integrity": "sha512-gQCLc/vWroE8lIpleXtdJhTFDogTdZG9AjMUpVkDf2iTCNwYNWA+u16dL41TqUDJO4gm2IgrcMv3uTpjd4Pwmg=="
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@nic/local-highlight-registry@0.1",
+      "npm:preact@^10.29.1"
+    ]
+  }
+}

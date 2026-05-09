@@ -1,0 +1,15 @@
+{
+  "name": "@luca/highlightable-textarea",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "imports": {
+    "@nic/local-highlight-registry": "jsr:@nic/local-highlight-registry@^0.1.0",
+    "preact": "npm:preact@^10.29.1"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  }
+}
