@@ -1,4 +1,4 @@
-// ../../../../Library/Caches/deno/npm/registry.npmjs.org/preact/10.29.1/dist/preact.mjs
+// ../../../../../../home/lucacasonato/.cache/deno/npm/registry.npmjs.org/preact/10.29.1/dist/preact.mjs
 var n;
 var l;
 var u;
@@ -285,7 +285,7 @@ n = w.slice, l = {
   return n2.__v.__b - l3.__v.__b;
 }, H.__r = 0, f = Math.random().toString(8), c = "__d" + f, s = "__a" + f, a = /(PointerCapture)$|Capture$/i, h = 0, p = V(false), v = V(true), y = 0;
 
-// ../../../../Library/Caches/deno/npm/registry.npmjs.org/preact/10.29.1/jsx-runtime/dist/jsxRuntime.mjs
+// ../../../../../../home/lucacasonato/.cache/deno/npm/registry.npmjs.org/preact/10.29.1/jsx-runtime/dist/jsxRuntime.mjs
 var f2 = 0;
 var i2 = Array.isArray;
 function u2(e3, t3, n2, o3, i4, u4) {
@@ -435,7 +435,7 @@ var LocalHighlightRegistry = class {
   }
 };
 
-// ../../../../Library/Caches/deno/npm/registry.npmjs.org/preact/10.29.1/hooks/dist/hooks.mjs
+// ../../../../../../home/lucacasonato/.cache/deno/npm/registry.npmjs.org/preact/10.29.1/hooks/dist/hooks.mjs
 var t2;
 var r2;
 var u3;
@@ -589,39 +589,48 @@ function D2(n2, t3) {
 }
 
 // index.tsx
-function HighlightableTextarea(props) {
-  const ref = A2(null);
-  const localHighlightRegistry = A2(new LocalHighlightRegistry());
-  const [isInteracting, setIsInteracting] = d2(false);
-  y2(() => {
-    const textarea = ref.current;
-    if (!textarea) return;
-    const highlights = localHighlightRegistry.current;
-    highlights.clear();
-    for (const token of locationizeTokens(textarea, props.highlights)) {
+function doHighlight(highlight, ref, localHighlightRegistry) {
+  const textarea = ref.current;
+  if (!textarea) return;
+  localHighlightRegistry.current.clear();
+  const value = textarea.textContent || "";
+  if (highlight) {
+    const highlights = highlight(value);
+    for (const token of locationizeTokens(textarea, highlights)) {
       const range = document.createRange();
       range.setStart(token.start.node, token.start.offset);
       range.setEnd(token.end.node, token.end.offset);
-      highlights.add(token.label, range, token.priority);
+      localHighlightRegistry.current.add(token.label, range, token.priority);
     }
+  }
+}
+function HighlightableTextarea(props) {
+  const ref = A2(null);
+  const localHighlightRegistry = A2(new LocalHighlightRegistry());
+  const { value, highlight, ...rest } = props;
+  y2(() => {
+    doHighlight(highlight, ref, localHighlightRegistry);
   }, [
-    props.highlights,
+    highlight,
     ref.current
   ]);
+  y2(() => {
+    if (ref.current) ref.current.textContent = value;
+  }, [
+    ref
+  ]);
   return /* @__PURE__ */ u2("div", {
+    "data-highlightable-textarea": true,
     contenteditable: "plaintext-only",
     ref,
     role: "textbox",
     onInput: (e3) => {
       props.onInput?.(e3);
-      if (!e3.defaultPrevented) setIsInteracting(true);
+      doHighlight(highlight, ref, localHighlightRegistry);
     },
-    onFocusOut: () => setIsInteracting(false),
-    onClick: () => setIsInteracting(true),
-    onKeyDown: (e3) => {
-      if (e3.key === "Escape") e3.currentTarget.blur();
-      if (e3.key === "ArrowUp" || e3.key === "ArrowDown" || e3.key === "ArrowLeft" || e3.key === "ArrowRight") setIsInteracting(true);
-    }
+    // deno-lint-ignore jsx-no-children-prop
+    children: "document" in globalThis ? void 0 : value,
+    ...rest
   });
 }
 function* locationizeTokens(div, tokens) {
@@ -670,34 +679,29 @@ function* locationizeTokens(div, tokens) {
   }
 }
 
-// demo.tsx
+// demo/index.tsx
 var regexp = /\{\{([^}]+)\}\}/g;
 function App() {
-  const [highlights, setHighlights] = d2([]);
   const [value, setValue] = d2("");
-  y2(() => {
-    const matches = value.matchAll(regexp);
-    if (!matches) return;
-    const newHighlights = [];
-    for (const match of matches) {
-      const start = match.index;
-      const end = start + match[0].length;
-      newHighlights.push({
-        start,
-        end,
-        label: "red",
-        priority: 0
-      });
-    }
-    console.log(newHighlights);
-    setHighlights(newHighlights);
-  }, [
-    value
-  ]);
   return /* @__PURE__ */ u2(HighlightableTextarea, {
     value,
-    highlights,
-    onInput: (e3) => setValue(e3.currentTarget.textContent)
+    onInput: (e3) => setValue(e3.currentTarget.textContent),
+    highlight: (value2) => {
+      const matches = value2.matchAll(regexp);
+      if (!matches) return [];
+      const newHighlights = [];
+      for (const match of matches) {
+        const start = match.index;
+        const end = start + match[0].length;
+        newHighlights.push({
+          start,
+          end,
+          label: "red",
+          priority: 0
+        });
+      }
+      return newHighlights;
+    }
   });
 }
 R(/* @__PURE__ */ u2(App, {}), document.body);

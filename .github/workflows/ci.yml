@@ -1,0 +1,20 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: denoland/setup-deno@v2
+      - run: deno fmt --check
+      - run: deno lint
+      - if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+        run: deno publish --dry-run
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: deno publish

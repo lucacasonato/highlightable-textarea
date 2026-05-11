@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Highlightable Textarea</title>
+    <script src="index.js" type="module"></script>
+    <style>
+      div[data-highlightable-textarea="true"] {
+        font-family: monospace;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        color: fieldtext;
+        background-color: field;
+        resize: both;
+        border: 1px solid light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+        padding: 2px;
+        display: inline-block;
+        min-width: 22ch;
+        min-height: 2lh;
+        text-align: start;
+        overflow: auto;
+      }
+
+      ::highlight(red) {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="textarea"></textarea>
+  </body>
+</html>

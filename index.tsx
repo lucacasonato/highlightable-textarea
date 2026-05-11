@@ -1,7 +1,14 @@
 import { LocalHighlightRegistry } from "@nic/local-highlight-registry";
-import { useEffect, useRef, useState } from "preact/hooks";
-import type { InputEventHandler } from "preact";
+import { type MutableRef, useEffect, useRef } from "preact/hooks";
+import type { HTMLAttributes, JSX, RefObject } from "preact";
 
+/**
+ * A semantic highlight range over the current editor value.
+ *
+ * `start` and `end` are character offsets into the plain-text value.
+ * `label` maps to CSS Custom Highlight selectors like `::highlight(label)`.
+ * `priority` controls ordering when highlights overlap.
+ */
 export interface HighlightToken {
   start: number;
   end: number;
@@ -9,52 +16,87 @@ export interface HighlightToken {
   priority: number;
 }
 
-interface HighlightableTextareaProps {
+/**
+ * Props for {@link HighlightableTextarea}.
+ *
+ * This extends standard `<div>` attributes (with content/value-related fields
+ * omitted), and adds controlled text + highlight generation hooks.
+ */
+export interface HighlightableTextareaProps extends
+  Omit<
+    HTMLAttributes<HTMLDivElement>,
+    | "textContent"
+    | "dangerouslySetInnerHTML"
+    | "children"
+    | "role"
+    | "contenteditable"
+    | "contentEditable"
+  > {
   value: string;
-  onInput?: InputEventHandler<HTMLDivElement>;
-  highlights: HighlightToken[];
+  highlight?(value: string): Iterable<HighlightToken>;
 }
 
-export function HighlightableTextarea(props: HighlightableTextareaProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const localHighlightRegistry = useRef(new LocalHighlightRegistry());
-  const [isInteracting, setIsInteracting] = useState(false);
-  useEffect(() => {
-    const textarea = ref.current;
-    if (!textarea) return;
-    const highlights = localHighlightRegistry.current;
-    highlights.clear();
-    for (const token of locationizeTokens(textarea, props.highlights)) {
+function doHighlight(
+  highlight: HighlightableTextareaProps["highlight"],
+  ref: RefObject<HTMLDivElement>,
+  localHighlightRegistry: MutableRef<LocalHighlightRegistry>,
+) {
+  const textarea = ref.current;
+  if (!textarea) return;
+  localHighlightRegistry.current.clear();
+  const value = textarea.textContent || "";
+  if (highlight) {
+    const highlights = highlight(value);
+    for (const token of locationizeTokens(textarea, highlights)) {
       const range = document.createRange();
       range.setStart(token.start.node, token.start.offset);
       range.setEnd(token.end.node, token.end.offset);
-      highlights.add(token.label, range, token.priority);
+      localHighlightRegistry.current.add(token.label, range, token.priority);
     }
-  }, [props.highlights, ref.current]);
+  }
+}
+
+/**
+ * A controlled, textarea-like editor surface backed by
+ * `contenteditable="plaintext-only"`.
+ *
+ * The `value` prop is rendered as plain text, `onInput` is forwarded so callers
+ * can update state, and `highlight` can provide semantic ranges that are mapped
+ * to named CSS Custom Highlights (for example `::highlight(token)`).
+ *
+ * The rendered element includes a `data-highlightable-textarea` attribute for
+ * base editor styling.
+ */
+export function HighlightableTextarea(
+  props: HighlightableTextareaProps,
+): JSX.Element {
+  const ref = useRef<HTMLDivElement>(null);
+  const localHighlightRegistry = useRef(new LocalHighlightRegistry());
+  const { value, highlight, ...rest } = props;
+  useEffect(() => {
+    doHighlight(highlight, ref, localHighlightRegistry);
+  }, [highlight, ref.current]);
+  useEffect(() => {
+    if (ref.current) ref.current.textContent = value;
+  }, [ref]);
   return (
     <div
+      data-highlightable-textarea
       contenteditable="plaintext-only"
       ref={ref}
       role="textbox"
       onInput={(e) => {
         props.onInput?.(e);
-        if (!e.defaultPrevented) setIsInteracting(true);
+        doHighlight(highlight, ref, localHighlightRegistry);
       }}
-      onFocusOut={() => setIsInteracting(false)}
-      onClick={() => setIsInteracting(true)}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") e.currentTarget.blur();
-        if (
-          e.key === "ArrowUp" || e.key === "ArrowDown" ||
-          e.key === "ArrowLeft" || e.key === "ArrowRight"
-        ) setIsInteracting(true);
-      }}
-    >
-    </div>
+      // deno-lint-ignore jsx-no-children-prop
+      children={"document" in globalThis ? undefined : value}
+      {...rest}
+    />
   );
 }
 
-export interface HighlightTokenInternal {
+interface HighlightTokenInternal {
   start: InternalLocation;
   end: InternalLocation;
   label: string;

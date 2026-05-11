@@ -1,8 +1,9 @@
 {
   "name": "@luca/highlightable-textarea",
   "version": "0.1.0",
+  "license": "MIT",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./index.tsx"
   },
   "imports": {
     "@nic/local-highlight-registry": "jsr:@nic/local-highlight-registry@^0.1.0",
@@ -11,5 +12,11 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
-  }
+  },
+  "tasks": {
+    "demo": "deno bundle demo/index.tsx > demo/index.js"
+  },
+  "exclude": [
+    "./demo/index.js"
+  ]
 }
