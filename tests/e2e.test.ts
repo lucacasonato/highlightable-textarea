@@ -75,7 +75,7 @@ Deno.test({
             await using page = await openPage(browser);
             const editor = page.locator("[data-highlightable-textarea]");
             await editor.click();
-            await page.keyboard.type("hello {{name}} world", { delay: 20 });
+            await page.keyboard.type("hello {{name}} world");
 
             assertEquals(await editor.textContent(), "hello {{name}} world");
 
@@ -124,7 +124,7 @@ Deno.test({
             await using page = await openPage(browser);
             const editor = page.locator("[data-highlightable-textarea]");
             await editor.click();
-            await page.keyboard.type("x {{a}} y", { delay: 20 });
+            await page.keyboard.type("x {{a}} y");
 
             const texts = await page.evaluate(() => {
               // @ts-ignore: browser-side

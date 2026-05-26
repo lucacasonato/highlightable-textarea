@@ -1,5 +1,5 @@
 import { LocalHighlightRegistry } from "@nic/local-highlight-registry";
-import { type MutableRef, useEffect, useRef } from "preact/hooks";
+import { type MutableRef, useLayoutEffect, useRef } from "preact/hooks";
 import type { HTMLAttributes, JSX, RefObject } from "preact";
 
 /**
@@ -73,9 +73,11 @@ export function HighlightableTextarea(
   const ref = useRef<HTMLDivElement>(null);
   const localHighlightRegistry = useRef(new LocalHighlightRegistry());
   const { value, highlight, onInput, ...rest } = props;
-  useEffect(() => {
-    if (ref.current && ref.current.textContent !== value) {
-      ref.current.textContent = value;
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (el.textContent !== value) {
+      el.textContent = value;
     }
     doHighlight(highlight, ref, localHighlightRegistry);
   }, [value, highlight]);
