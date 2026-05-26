@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,6 +15,14 @@ jobs:
       - uses: denoland/setup-deno@v2
       - run: deno fmt --check
       - run: deno lint
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('deno.lock') }}
+      - run: deno install
+      - run: deno run -A npm:playwright install --with-deps
+      - run: deno task test
       - if: github.event_name != 'push' || github.ref != 'refs/heads/main'
         run: deno publish --dry-run
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'

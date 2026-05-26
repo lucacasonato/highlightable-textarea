@@ -7,6 +7,9 @@
   },
   "imports": {
     "@nic/local-highlight-registry": "jsr:@nic/local-highlight-registry@^0.1.0",
+    "@std/assert": "jsr:@std/assert@^1.0.0",
+    "@std/http": "jsr:@std/http@^1.0.0",
+    "playwright": "npm:playwright@^1.60.0",
     "preact": "npm:preact@^10.29.1"
   },
   "compilerOptions": {
@@ -14,7 +17,8 @@
     "jsxImportSource": "preact"
   },
   "tasks": {
-    "demo": "deno bundle demo/index.tsx > demo/index.js"
+    "demo": "deno bundle demo/index.tsx > demo/index.js",
+    "test": "deno test -A tests/"
   },
   "exclude": [
     "./demo/index.js"
