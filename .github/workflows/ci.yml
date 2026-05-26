@@ -20,8 +20,8 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('deno.lock') }}
-      - run: deno install
-      - run: deno run -A npm:playwright install --with-deps
+      - run: deno install --frozen
+      - run: deno task playwright:install
       - run: deno task test
       - if: github.event_name != 'push' || github.ref != 'refs/heads/main'
         run: deno publish --dry-run

@@ -1,16 +1,16 @@
 {
   "name": "@luca/highlightable-textarea",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "exports": {
     ".": "./index.tsx"
   },
   "imports": {
     "@nic/local-highlight-registry": "jsr:@nic/local-highlight-registry@^0.1.0",
-    "@std/assert": "jsr:@std/assert@^1.0.0",
-    "@std/http": "jsr:@std/http@^1.0.0",
+    "@std/assert": "jsr:@std/assert@^1.0.19",
+    "@std/http": "jsr:@std/http@^1.1.1",
     "playwright": "npm:playwright@^1.60.0",
-    "preact": "npm:preact@^10.29.1"
+    "preact": "npm:preact@^10.29.2"
   },
   "compilerOptions": {
     "jsx": "react-jsx",
@@ -18,7 +18,8 @@
   },
   "tasks": {
     "demo": "deno bundle demo/index.tsx > demo/index.js",
-    "test": "deno test -A tests/"
+    "test": "deno test -A tests/",
+    "playwright:install": "deno run -A playwright install --with-deps"
   },
   "exclude": [
     "./demo/index.js"
