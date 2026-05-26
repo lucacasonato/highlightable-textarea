@@ -7,21 +7,26 @@ const regexp = /\{\{([^}]+)\}\}/g;
 function App() {
   const [value, setValue] = useState("");
   return (
-    <HighlightableTextarea
-      value={value}
-      onInput={(e) => setValue(e.currentTarget.textContent)}
-      highlight={(value) => {
-        const matches = value.matchAll(regexp);
-        if (!matches) return [];
-        const newHighlights: HighlightToken[] = [];
-        for (const match of matches) {
-          const start = match.index!;
-          const end = start + match[0].length;
-          newHighlights.push({ start, end, label: "red", priority: 0 });
-        }
-        return newHighlights;
-      }}
-    />
+    <>
+      <HighlightableTextarea
+        value={value}
+        onInput={(e) => setValue(e.currentTarget.textContent)}
+        highlight={(value) => {
+          const matches = value.matchAll(regexp);
+          if (!matches) return [];
+          const newHighlights: HighlightToken[] = [];
+          for (const match of matches) {
+            const start = match.index!;
+            const end = start + match[0].length;
+            newHighlights.push({ start, end, label: "red", priority: 0 });
+          }
+          return newHighlights;
+        }}
+      />
+      <button type="button" onClick={() => setValue((v) => v + " {{token}}")}>
+        Insert {"{{token}}"}
+      </button>
+    </>
   );
 }
 

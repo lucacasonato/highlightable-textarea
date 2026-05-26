@@ -607,30 +607,28 @@ function doHighlight(highlight, ref, localHighlightRegistry) {
 function HighlightableTextarea(props) {
   const ref = A2(null);
   const localHighlightRegistry = A2(new LocalHighlightRegistry());
-  const { value, highlight, ...rest } = props;
+  const { value, highlight, onInput, ...rest } = props;
   y2(() => {
+    if (ref.current && ref.current.textContent !== value) {
+      ref.current.textContent = value;
+    }
     doHighlight(highlight, ref, localHighlightRegistry);
   }, [
-    highlight,
-    ref.current
-  ]);
-  y2(() => {
-    if (ref.current) ref.current.textContent = value;
-  }, [
-    ref
+    value,
+    highlight
   ]);
   return /* @__PURE__ */ u2("div", {
     "data-highlightable-textarea": true,
     contenteditable: "plaintext-only",
-    ref,
     role: "textbox",
-    onInput: (e3) => {
-      props.onInput?.(e3);
-      doHighlight(highlight, ref, localHighlightRegistry);
-    },
     // deno-lint-ignore jsx-no-children-prop
     children: "document" in globalThis ? void 0 : value,
-    ...rest
+    ...rest,
+    ref,
+    onInput: (e3) => {
+      onInput?.(e3);
+      doHighlight(highlight, ref, localHighlightRegistry);
+    }
   });
 }
 function* locationizeTokens(div, tokens) {
@@ -683,25 +681,37 @@ function* locationizeTokens(div, tokens) {
 var regexp = /\{\{([^}]+)\}\}/g;
 function App() {
   const [value, setValue] = d2("");
-  return /* @__PURE__ */ u2(HighlightableTextarea, {
-    value,
-    onInput: (e3) => setValue(e3.currentTarget.textContent),
-    highlight: (value2) => {
-      const matches = value2.matchAll(regexp);
-      if (!matches) return [];
-      const newHighlights = [];
-      for (const match of matches) {
-        const start = match.index;
-        const end = start + match[0].length;
-        newHighlights.push({
-          start,
-          end,
-          label: "red",
-          priority: 0
-        });
-      }
-      return newHighlights;
-    }
+  return /* @__PURE__ */ u2(S, {
+    children: [
+      /* @__PURE__ */ u2(HighlightableTextarea, {
+        value,
+        onInput: (e3) => setValue(e3.currentTarget.textContent),
+        highlight: (value2) => {
+          const matches = value2.matchAll(regexp);
+          if (!matches) return [];
+          const newHighlights = [];
+          for (const match of matches) {
+            const start = match.index;
+            const end = start + match[0].length;
+            newHighlights.push({
+              start,
+              end,
+              label: "red",
+              priority: 0
+            });
+          }
+          return newHighlights;
+        }
+      }),
+      /* @__PURE__ */ u2("button", {
+        type: "button",
+        onClick: () => setValue((v3) => v3 + " {{token}}"),
+        children: [
+          "Insert ",
+          "{{token}}"
+        ]
+      })
+    ]
   });
 }
 R(/* @__PURE__ */ u2(App, {}), document.body);

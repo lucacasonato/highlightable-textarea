@@ -72,26 +72,26 @@ export function HighlightableTextarea(
 ): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const localHighlightRegistry = useRef(new LocalHighlightRegistry());
-  const { value, highlight, ...rest } = props;
+  const { value, highlight, onInput, ...rest } = props;
   useEffect(() => {
+    if (ref.current && ref.current.textContent !== value) {
+      ref.current.textContent = value;
+    }
     doHighlight(highlight, ref, localHighlightRegistry);
-  }, [highlight, ref.current]);
-  useEffect(() => {
-    if (ref.current) ref.current.textContent = value;
-  }, [ref]);
+  }, [value, highlight]);
   return (
     <div
       data-highlightable-textarea
       contenteditable="plaintext-only"
-      ref={ref}
       role="textbox"
-      onInput={(e) => {
-        props.onInput?.(e);
-        doHighlight(highlight, ref, localHighlightRegistry);
-      }}
       // deno-lint-ignore jsx-no-children-prop
       children={"document" in globalThis ? undefined : value}
       {...rest}
+      ref={ref}
+      onInput={(e) => {
+        onInput?.(e);
+        doHighlight(highlight, ref, localHighlightRegistry);
+      }}
     />
   );
 }
